@@ -1,6 +1,7 @@
 package com.csye6225.spring2019.util;
 
 import com.amazonaws.services.s3.model.Bucket;
+import org.apache.logging.log4j.util.Strings;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -56,7 +57,7 @@ public void testUploadFile() throws Exception {
     File file = new File("pom.xml");
     String url = S3Util.uploadFile(env.getProperty("csye6225.aws.bucket.name"),env.getProperty("csye6225.file.folder"),file,env.getProperty("csye6225.aws.url.suffix"));
     System.out.println(url);
-
+    Assert.assertTrue(Strings.isNotEmpty(url));
 } 
 
 

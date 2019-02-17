@@ -54,10 +54,6 @@ public class NoteRepositoryTest {
         .isEmpty());
     }
 
-    @Test
-    public void test() {
-        S3Util.createBucket("testww");
-        S3Util.listBucket();
-    }
+   
     
 }

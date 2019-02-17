@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 public class AttachmentServiceImpl implements AttachmentService {
     @Autowired
     private AttachmentRepository attachmentRepository;
+
+    @Override
     public boolean addAttachmentsToNote(List<Attachment> list){
         if(list==null||list.isEmpty()) {
             log.warn("No attachments to add");
@@ -33,6 +35,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         return re>0;
     }
 
+    @Override
     public List<Attachment> findAttachmentsByNoteId(String noteId){
         if(Strings.isEmpty(noteId)){
             log.warn("Empty note id");
@@ -40,6 +43,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         return attachmentRepository.listAttachmentByNoteId(noteId);
     }
 
+    @Override
     public boolean updateAttachment(Attachment attachment){
         if(attachment==null || Strings.isEmpty(attachment.getNoteId())
         ||Strings.isEmpty(attachment.getId())||Strings.isEmpty(attachment.getUrl())){
@@ -49,6 +53,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         return re>0;
     }
 
+    @Override
     public Attachment getAttachmentById(String id){
         if(Strings.isEmpty(id)){
             log.warn("Empty id or note id");
@@ -56,4 +61,20 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
         return attachmentRepository.getAttachmentById(id);
     }
+
+    @Override
+    public boolean deleteAttachmentById(String id){
+        if(Strings.isEmpty(id)){
+            log.warn("Empty id");
+            return false;
+        }
+        int re = attachmentRepository.deleteAttachmentById(id);
+        if(re==0){
+            log.warn(String.format("Delete failed :%s! ",id));
+            return false;
+        }
+        return true;
+
+    }
+
 }

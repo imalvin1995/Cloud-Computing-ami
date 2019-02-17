@@ -76,7 +76,7 @@ public class S3Util {
             log.error(e);
             return null;
         }
-        return String.format("%s%s%s",bucketName,awsSuffix,filePath);
+        return String.format("%s%s/%s",bucketName,awsSuffix,filePath);
     }
 
 

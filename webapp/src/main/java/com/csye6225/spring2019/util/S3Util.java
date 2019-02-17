@@ -1,5 +1,8 @@
 package com.csye6225.spring2019.util;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -13,7 +16,8 @@ import java.util.List;
 public class S3Util {
     private static AmazonS3 s3;
     static {
-         s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
+         s3 = AmazonS3ClientBuilder.defaultClient();
+
     }
     public static void listBucket(){
         List<Bucket> buckets = s3.listBuckets();

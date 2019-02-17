@@ -10,7 +10,29 @@
         <result column="CREATE_TIME" property="createTime"/>
         <result column="UPDATE_TIME" property="updateTime"/>
     </resultMap>
+    <insert id="insertAttachments" parameterType="com.csye6225.spring2019.entity.Attachment">
+        insert into attachment (id,note_id,url,create_time,update_time) values
+        <foreach collection="list" item="item" open="(" close=")" index="index" separator=",">
+            #{id},#{note_id},#{url},#{create_time},#{update_time}
+        </foreach>
+    </insert>
 
+    <select id="listAttachmentByNoteId" resultMap="result">
+        select * from attachment where note_id=#{note_id}
+    </select>
+
+    <select id="getAttachmentById" resultMap="result">
+        select * from attachment where id=#{id}
+    </select>
+
+    <delete id="deleteAttachmentById" parameterType="string">
+        delete from attachment where id=#{id}
+    </delete>
+
+    <update id="updateAttachment" parameterType="com.csye6225.spring2019.entity.Attachment">
+        update attachment set url=#{url}, update_time=#{updateTime}
+        where id=#{id}
+    </update>
 
 
 </mapper>

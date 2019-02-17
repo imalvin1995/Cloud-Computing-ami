@@ -8,9 +8,7 @@ import com.csye6225.spring2019.filter.Verifier;
 import com.csye6225.spring2019.service.AttachmentService;
 import com.csye6225.spring2019.service.NoteService;
 import com.csye6225.spring2019.service.RegisterService;
-import javafx.scene.control.TableView;
-import jdk.internal.joptsimple.internal.Strings;
-import org.graalvm.compiler.core.common.type.ArithmeticOpTable;
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static javax.servlet.http.HttpServletResponse.*;
+
 
 @RestController
 public class AttachmentController {

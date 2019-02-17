@@ -9,16 +9,18 @@ import java.util.List;
 
 @Log4j2
 public class FileUtil {
-    private static void createfolder(String folderPath) throws IOException {
+    public static boolean createfolder(String folderPath) throws IOException {
         if(Strings.isEmpty(folderPath))
-            return;
+            return false;
         File file = new File(folderPath);
+        boolean isSuccess = true;
         if(!file.exists()){
-            file.mkdir();
+            isSuccess = file.mkdir();
         }
+        return isSuccess;
     }
 
-    public static String inputSteamToFile(File file,String folderPath){
+    public static String saveFileToLocal(File file,String folderPath) throws IOException{
         if(file==null||Strings.isEmpty(folderPath)){
             log.warn("Invalid params");
             return null;
@@ -33,12 +35,15 @@ public class FileUtil {
             log.warn(String.format("Cannot get the name and suffix :%s",fileName));
             return null;
         }
-        String filePath = String.format("%s/%s-%d%s",folderPath,list.get(0),System.currentTimeMillis(),list.get(1));
+        if(!createfolder(folderPath)){
+            log.error("cannot create the folder with path :"+folderPath);
+            return null;
+        }
+        String filePath = String.format("%s/%s-%d.%s",folderPath,list.get(0),System.currentTimeMillis(),list.get(1));
         File outfile = new File(filePath);
+        outfile.createNewFile();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             BufferedWriter bf = new BufferedWriter(new FileWriter(outfile))){
-            createfolder(folderPath);
-            outfile.createNewFile();
             String i;
             while ((i=reader.readLine())!=null){
                 bf.write(i);
@@ -49,4 +54,5 @@ public class FileUtil {
         }
         return filePath;
     }
+
 }

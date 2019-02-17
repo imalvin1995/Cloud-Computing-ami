@@ -1,6 +1,7 @@
 package com.csye6225.spring2019.repository;
 
 
+import com.amazonaws.services.s3.model.Bucket;
 import com.csye6225.spring2019.entity.Account;
 import com.csye6225.spring2019.entity.Note;
 import com.csye6225.spring2019.util.S3Util;
@@ -54,6 +55,10 @@ public class NoteRepositoryTest {
         .isEmpty());
     }
 
-   
+    @Test
+    public void test(){
+        Bucket b = S3Util.getBucket("new-bucke");
+        System.out.println(b.getName());
+    }
     
 }

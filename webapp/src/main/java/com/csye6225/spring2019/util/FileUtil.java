@@ -18,7 +18,7 @@ public class FileUtil {
         }
     }
 
-    public static String inputSteamToFile(File file,String folderPath){
+    public static String saveFileToLocal(File file,String folderPath){
         if(file==null||Strings.isEmpty(folderPath)){
             log.warn("Invalid params");
             return null;
@@ -33,7 +33,7 @@ public class FileUtil {
             log.warn(String.format("Cannot get the name and suffix :%s",fileName));
             return null;
         }
-        String filePath = String.format("%s/%s-%d%s",folderPath,list.get(0),System.currentTimeMillis(),list.get(1));
+        String filePath = String.format("%s/%s-%d.%s",folderPath,list.get(0),System.currentTimeMillis(),list.get(1));
         File outfile = new File(filePath);
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             BufferedWriter bf = new BufferedWriter(new FileWriter(outfile))){
@@ -49,4 +49,5 @@ public class FileUtil {
         }
         return filePath;
     }
+
 }

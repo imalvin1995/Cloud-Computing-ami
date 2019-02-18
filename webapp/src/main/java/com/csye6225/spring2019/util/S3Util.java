@@ -79,6 +79,19 @@ public class S3Util {
         return String.format("%s%s/%s",bucketName,awsSuffix,filePath);
     }
 
+    public static boolean deleteFile(String bucket,String keyName){
+        if(Strings.isEmpty(bucket)||Strings.isEmpty(keyName)){
+            return false;
+        }
+        try{
+            s3.deleteObject(bucket,keyName);
+        }catch (Exception e){
+            log.error(e);
+            return false;
+        }
+        return true;
+    }
+
 
 
 

@@ -9,6 +9,18 @@
 |YuChiao Huang |001442969 |huang.yuc@husky.neu.edu |
 |Yimu Jin| 001449259 | jin.yim@husky.neu.edu |
 
+ CREATE TABLE `attachment` (
+  `id` varchar(36) NOT NULL,
+  `note_id` varchar(36) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_size` bigint(32) default 0,
+  `file_type` char(8) not null,
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 ## Validate Template
 
 ```

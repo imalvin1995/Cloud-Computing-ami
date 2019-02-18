@@ -20,6 +20,12 @@ public class Attachment {
 
     private String url;
 
+    private String fileName;
+
+    private double fileSize;
+
+    private String fileType;
+
     private Timestamp createTime;
 
     private Timestamp updateTime;

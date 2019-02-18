@@ -20,4 +20,6 @@ public interface AttachmentRepository {
 
     Attachment getAttachmentById(@Param("id")String id);
 
+    int deleteAttachmentByNoteId(@Param("noteId")String noteId);
+
 }

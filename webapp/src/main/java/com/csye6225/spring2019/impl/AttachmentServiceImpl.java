@@ -77,4 +77,10 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     }
 
+    @Override
+    public int deleteAttachmentByNoteId(String noteId){
+        if(Strings.isEmpty(noteId)) return 0;
+        return attachmentRepository.deleteAttachmentByNoteId(noteId);
+    }
+
 }

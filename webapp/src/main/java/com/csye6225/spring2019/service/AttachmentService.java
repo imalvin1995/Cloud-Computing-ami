@@ -15,4 +15,6 @@ public interface AttachmentService {
 
     boolean deleteAttachmentById(String id);
 
+    int deleteAttachmentByNoteId(String noteId);
+
 }

@@ -55,4 +55,18 @@ public class FileUtil {
         return filePath;
     }
 
+    public static boolean deleteFileFromLocal(String filePath){
+        File file = new File(filePath);
+        if(!file.exists()){
+            log.error("cannot find file with path :"+filePath);
+            return false;
+        }
+        try {
+            file.delete();
+        }catch (Exception e){
+            log.error("Cannot delete file "+filePath);
+        }
+        return true;
+    }
+
 }

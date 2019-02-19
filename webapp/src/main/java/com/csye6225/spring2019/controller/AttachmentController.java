@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -83,8 +84,8 @@ public class AttachmentController {
         return res;
     }
 
-    @PostMapping("/note/{id}/attachments")
-    public Result<Attachment> postAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("id") String noteId, @RequestParam(value = "file") MultipartFile multipartFile) throws IOException {
+    @PostMapping("/note/{noteId}/attachments")
+    public Result<Attachment> postAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("noteId") String noteId, @RequestParam(value = "file") MultipartFile multipartFile) throws IOException {
         // Basic Auth;
         Result<Attachment> res = new Result<>();
         String auth = httpServletRequest.getHeader("Authorization");
@@ -128,8 +129,8 @@ public class AttachmentController {
         return res;
     }
 
-    @PutMapping("/note/{id}/attachments/{idAttachments}")
-    public Result<Attachment> updateAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("id") String noteId, @PathVariable("idAttachments") String idAttachment, @RequestParam("file") MultipartFile file) throws IOException {
+    @PutMapping("/note/{noteId}/attachments/{idAttachments}")
+    public Result<Attachment> updateAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("noteId") String noteId, @PathVariable("idAttachments") String idAttachment, @RequestParam("file") MultipartFile file) throws IOException {
         // Basic Auth
         Result<Attachment> res = new Result<>();
         String auth = httpServletRequest.getHeader("Authorization");
@@ -178,35 +179,40 @@ public class AttachmentController {
     }
 
     private Attachment setAttachment(MultipartFile multipartFile,Attachment attachment) throws IOException{
-        attachment.setFileName(multipartFile.getName());
-        attachment.setFileSize(multipartFile.getSize());
-        List<String> name = Splitter.on(".").trimResults().splitToList(multipartFile.getOriginalFilename());
-        String fileType = name.get(1);
-        attachment.setFileType(fileType);
+
+        //List<String> name = Splitter.on(".").trimResults().splitToList(multipartFile.getOriginalFilename());
+       // String fileType = name.get(1);
+        //attachment.setFileType(fileType);
+        String multipartFileName = multipartFile.getOriginalFilename();
+        String fileName = multipartFileName.substring(0,multipartFileName.lastIndexOf("."));
+        String fileType = multipartFileName.substring(multipartFileName.lastIndexOf("."));
         //transfer  multipart file to file
-        String fileName = name.get(0);
-        final File file = File.createTempFile(fileName+"-"+System.currentTimeMillis(),"."+fileType);
-        multipartFile.transferTo(file);
+        //String fileName = name.get(0)+"-"+System.currentTimeMillis();
+        attachment.setFileName(fileName);
+        attachment.setFileSize(multipartFile.getSize());
+        //final File file = File.createTempFile(fileName+"-"+System.currentTimeMillis(),"."+fileType);
+        //multipartFile.transferTo(file);
+        InputStream inputStream = multipartFile.getInputStream();
         String envType = environment.getProperty("csye6225.save.file.type");
         String url;
         if (envType.equals("local")) {
-            url = FileUtil.saveFileToLocal(file, environment.getProperty("csye6225.file.folder"));
+            url = FileUtil.saveFileToLocal(inputStream, environment.getProperty("csye6225.file.folder"),fileName,fileType);
         }
         // aws file
         else  {
             //Bucket b = S3Util.getBucket(environment.getProperty("csye6225.aws.bucket.name"));
-            url = S3Util.uploadFile(environment.getProperty("csye6225.aws.bucket.name"), environment.getProperty("csye6225.file.folder"), file, environment.getProperty("csye6225.aws.url.suffix"));
+            url = S3Util.uploadFile(environment.getProperty("csye6225.aws.bucket.name"), environment.getProperty("csye6225.file.folder"), inputStream, environment.getProperty("csye6225.aws.url.suffix"),fileName,fileType);
         }
         if(Strings.isNullOrEmpty(url))
             return null;
         attachment.setUrl(url);
 
-        file.delete();
+        //file.delete();
         return attachment;
     }
 
-    @DeleteMapping("/note/{id}/attachments/{idAttachments}")
-    public Result<String> deleteAttachments(HttpServletResponse httpServletResponse, HttpServletRequest httpServletRequest, @PathVariable("id") String noteId, @PathVariable("idAttachments") String idAttachment) throws IOException {
+    @DeleteMapping("/note/{noteId}/attachments/{idAttachments}")
+    public Result<String> deleteAttachments(HttpServletResponse httpServletResponse, HttpServletRequest httpServletRequest, @PathVariable("noteId") String noteId, @PathVariable("idAttachments") String idAttachment) throws IOException {
         Result<String> res = new Result<>();
         String auth = httpServletRequest.getHeader("Authorization");
         Account account = Verifier.isVerified(auth);

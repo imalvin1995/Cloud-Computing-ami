@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,13 +24,12 @@ public class AttachmentServiceImpl implements AttachmentService {
             log.warn("No attachments to add");
             return false;
         }
-        List<Attachment> noteIdList = list.stream()
-                .filter(x-> Strings.isNotEmpty(x.getNoteId())
-                        && Strings.isNotEmpty(x.getId()))
-                .collect(Collectors.toList());
-        if(noteIdList.size()< list.size()){
-            log.warn("Some attachments lacking necessary ids");
-            return false;
+        for(Attachment a :list){
+            if(Strings.isEmpty(a.getNoteId())){
+                log.warn(String.format("No noteId for %s",a.getNoteId()));
+                return false;
+            }
+            a.setId(UUID.randomUUID().toString());
         }
         int re = attachmentRepository.insertAttachments(list);
         return re>0;

@@ -11,11 +11,13 @@ import com.csye6225.spring2019.service.NoteService;
 import com.csye6225.spring2019.service.RegisterService;
 import com.csye6225.spring2019.util.FileUtil;
 import com.csye6225.spring2019.util.S3Util;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import static javax.servlet.http.HttpServletResponse.*;
 
@@ -44,8 +47,8 @@ public class AttachmentController {
     @Autowired
     Environment environment;
 
-    @GetMapping("/note/{id}/attachments")
-    public Result<List<Attachment>> getAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable(name = "id") String noteId) throws IOException {
+    @GetMapping("/note/{noteId}/attachments")
+    public Result<List<Attachment>> getAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable(value = "noteId") String noteId) throws IOException {
         Result<List<Attachment>> res = new Result<>();
         String auth = httpServletRequest.getHeader("Authorization");
         Account account = Verifier.isVerified(auth);
@@ -79,7 +82,7 @@ public class AttachmentController {
     }
 
     @PostMapping("/note/{id}/attachments")
-    public Result<Attachment> postAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable(name = "id") String noteId, File file) throws IOException {
+    public Result<Attachment> postAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("id") String noteId, @RequestParam(value = "file") MultipartFile multipartFile) throws IOException {
         // Basic Auth;
         Result<Attachment> res = new Result<>();
         String auth = httpServletRequest.getHeader("Authorization");
@@ -107,11 +110,16 @@ public class AttachmentController {
             List<Attachment> list = new LinkedList<>();
             Attachment attachment = new Attachment();
             attachment.setNoteId(noteId);
-            attachment.setFileName(file.getName());
-            attachment.setFileSize(file.length());
-            String[] name = file.getName().split("\\.");
+            attachment.setFileName(multipartFile.getName());
+            attachment.setFileSize(multipartFile.getSize());
+            String[] name = multipartFile.getName().split("\\.");
             String fileType = name[name.length - 1];
             attachment.setFileType(fileType);
+            //transfer  multipart file to file
+            String fileName = multipartFile.getOriginalFilename();
+            String prefix = fileName.substring(fileName.lastIndexOf("."));
+            final File file = File.createTempFile(UUID.randomUUID().toString(),prefix);
+            multipartFile.transferTo(file);
             // local file
             if (environment.getProperty("csye6225.save.file.type").equals("local")) {
                 String url = FileUtil.saveFileToLocal(file, environment.getProperty("csye6225.file.folder"));
@@ -131,12 +139,13 @@ public class AttachmentController {
             res.setData(attachment);
             res.setMessage("OK");
             res.setStatusCode(200);
+            //file.delete();
         }
         return res;
     }
 
     @PutMapping("/note/{id}/attachments/{idAttachments}")
-    public Result<Attachment> updateAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable(name = "id") String noteId, @PathVariable(name = "idAttachments") String idAttachment, File file) throws IOException {
+    public Result<Attachment> updateAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("id") String noteId, @PathVariable("idAttachments") String idAttachment, File file) throws IOException {
         // Basic Auth
         Result<Attachment> res = new Result<>();
         String auth = httpServletRequest.getHeader("Authorization");
@@ -202,7 +211,7 @@ public class AttachmentController {
     }
 
     @DeleteMapping("/note/{id}/attachments/{idAttachments}")
-    public Result<String> deleteAttachments(HttpServletResponse httpServletResponse, HttpServletRequest httpServletRequest, @PathVariable(name = "id") String noteId, @PathVariable(name = "idAttachments") String idAttachment) throws IOException {
+    public Result<String> deleteAttachments(HttpServletResponse httpServletResponse, HttpServletRequest httpServletRequest, @PathVariable("id") String noteId, @PathVariable("idAttachments") String idAttachment) throws IOException {
         Result<String> res = new Result<>();
         String auth = httpServletRequest.getHeader("Authorization");
         Account account = Verifier.isVerified(auth);

@@ -197,6 +197,7 @@ public class AttachmentController {
         //String fileName = name.get(0)+"-"+System.currentTimeMillis();
         attachment.setFileName(fileName);
         attachment.setFileSize(multipartFile.getSize());
+        attachment.setFileType(fileType);
         //final File file = File.createTempFile(fileName+"-"+System.currentTimeMillis(),"."+fileType);
         //multipartFile.transferTo(file);
         InputStream inputStream = multipartFile.getInputStream();

@@ -35,6 +35,9 @@ Resources:
       - Key: Name
         Value: WebappSecurityGroup
 
+
+Fn::importvalue
+
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
@@ -49,14 +52,7 @@ Resources:
             VolumeType: gp2
             DeleteOnTermination: true
             VolumeSize: 20
-      ImageId:
-        Fn::FindInMap:
-        - AWSRegionArch2AMI
-        - Ref: AWS::Region
-        - Fn::FindInMap:
-          - AWSInstanceType2Arch
-          - Ref: InstanceType
-          - Arch
+      ImageId: ami-9887c6e7
 
   DBSecurityGroup:
     Type: AWS::EC2::SecurityGroup

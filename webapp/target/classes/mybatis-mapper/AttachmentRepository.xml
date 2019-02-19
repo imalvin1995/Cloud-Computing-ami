@@ -21,7 +21,7 @@
     </insert>
 
     <select id="listAttachmentByNoteId" resultMap="result">
-        select * from attachment where note_id=#{note_id}
+        select * from attachment where note_id=#{noteId}
     </select>
 
     <select id="getAttachmentById" resultMap="result">

@@ -1,6 +1,5 @@
 ##DynamoDB
 AWSTemplateFormatVersion: "2010-09-09"
-
 Resources: 
   #Create VPC:
   csye6225VPC:
@@ -35,6 +34,9 @@ Resources:
       - Key: Name
         Value: WebappSecurityGroup
 
+
+Fn::importvalue
+
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
@@ -49,14 +51,7 @@ Resources:
             VolumeType: gp2
             DeleteOnTermination: true
             VolumeSize: 20
-      ImageId:
-        Fn::FindInMap:
-        - AWSRegionArch2AMI
-        - Ref: AWS::Region
-        - Fn::FindInMap:
-          - AWSInstanceType2Arch
-          - Ref: InstanceType
-          - Arch
+      ImageId: ami-9887c6e7
 
   DBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -91,21 +86,21 @@ Resources:
 ##RDS Instance
 # csye6225:
 #   Type: AWS::RDS::DBInstance
-#   Properties: 
+#   Properties:
 #     Engine: "MySQL"
-#     DBInstanceClass: 
+#     DBInstanceClass:
 #       Ref: "db.t2.medium"
 #     MultiAZ:
 #       Ref: "false"
 #     DBInstanceIdentifier:
 #       Ref: "csye6225-spring2019"
-#     MasterUsername: 
+#     MasterUsername:
 #       Ref: "csye6225master"
-#     MasterUserPassword: 
+#     MasterUserPassword:
 #       Ref: "csye6225password"
 #     PubliclyAccessible:
 #       Ref: "true"
 #     DBSubnetGroupName:
 #       Ref: "Subnet for RDS instances" #TODO
-#     DBName: 
+#     DBName:
 #       Ref: "csye6225"

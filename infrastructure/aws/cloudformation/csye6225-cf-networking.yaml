@@ -93,3 +93,20 @@ Resources:
     Properties:
       SubnetId: !Ref PublicSubnetC
       RouteTableId: !Ref csye6225PublicRouteTable
+
+Output:
+  VPC: 
+      Description: A reference to the created VPC
+      Value: !Ref VPC
+
+  PublicSubnetA:
+      Description: Subnet A
+      Value: !Sub ${AWS::StackName}-Public-A
+
+  PublicSubnetB:
+      Description: Subnet B
+      Value: !Sub ${AWS::StackName}-Public-B
+
+  PublicSubnetC:
+      Description: Subnet C
+      Value: !Sub ${AWS::StackName}-Public-C   

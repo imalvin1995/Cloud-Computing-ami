@@ -1,62 +1,54 @@
-##DynamoDB
 AWSTemplateFormatVersion: "2010-09-09"
-
 Resources: 
-  #Create VPC:
-  csye6225VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: false
-      EnableDnsHostnames: false
-      Tags:
-      - Key: Name
-        Value:  !Join ['', [!Ref "AWS::StackName", "-csye6225","-vpc" ]]
+  # #Create VPC:
+  # csye6225VPC:
+  #   Type: AWS::EC2::VPC
+  #   Properties:
+  #     CidrBlock: 10.0.0.0/16
+  #     EnableDnsSupport: false
+  #     EnableDnsHostnames: false
+  #     Tags:
+  #     - Key: Name
+  #       Value:  !Join ['', [!Ref "AWS::StackName", "-csye6225","-vpc" ]]
 
-  WebappSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security Group for Web Servers
-      VpcId: !Ref csye6225VPC
-      SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: 0.0.0.0/0
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
-      - IpProtocol: tcp
-        FromPort: 443
-        ToPort: 443
-        CidrIp: 0.0.0.0/0
-      Tags:
-      - Key: Name
-        Value: WebappSecurityGroup
+  # WebappSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupDescription: Security Group for Web Servers
+  #     VpcId: !Ref csye6225VPC
+  #     SecurityGroupIngress:
+  #     - IpProtocol: tcp
+  #       FromPort: 22
+  #       ToPort: 22
+  #       CidrIp: 0.0.0.0/0
+  #     - IpProtocol: tcp
+  #       FromPort: 80
+  #       ToPort: 80
+  #       CidrIp: 0.0.0.0/0
+  #     - IpProtocol: tcp
+  #       FromPort: 443
+  #       ToPort: 443
+  #       CidrIp: 0.0.0.0/0
+  #     Tags:
+  #     - Key: Name
+  #       Value: WebappSecurityGroup
 
-  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t2.micro
-      SecurityGroups:
-      - Ref: WebappSecurityGroup
-      KeyName:
-        Ref: KeyName
-      BlockDeviceMappings: 
-        - DeviceName: /dev/sdm
-          Ebs: 
-            VolumeType: gp2
-            DeleteOnTermination: true
-            VolumeSize: 20
-      ImageId:
-        Fn::FindInMap:
-        - AWSRegionArch2AMI
-        - Ref: AWS::Region
-        - Fn::FindInMap:
-          - AWSInstanceType2Arch
-          - Ref: InstanceType
-          - Arch
+
+  # EC2Instance:
+  #   Type: AWS::EC2::Instance
+  #   Properties:
+  #     InstanceType: t2.micro
+  #     SecurityGroups:
+  #     - Ref: WebappSecurityGroup
+  #     KeyName:
+  #       Ref: KeyName
+  #     BlockDeviceMappings: 
+  #       - DeviceName: /dev/sdm
+  #         Ebs: 
+  #           VolumeType: gp2
+  #           DeleteOnTermination: true
+  #           VolumeSize: 20
+  #     ImageId: ami-9887c6e7
 
   DBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -87,25 +79,36 @@ Resources:
   #       ReadCapacityUnits: "5"
   #       WriteCapacityUnits: "5"
   #     TableName: "csye6225"
+# RDS Subnet Group
+    rdsSubnetGroup: 
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties: 
+      DBSubnetGroupDescription: "RDS Subnets"
+      SubnetIds: 
+        - Fn::ImportValue:
+            !Sub ${AWS::StackName}-Public-A
+        - Fn::ImportValue:
+            !Sub ${AWS::StackName}-Public-B
+        - Fn::ImportValue:
+            !Sub ${AWS::StackName}-Public-C
 
-##RDS Instance
-# csye6225:
-#   Type: AWS::RDS::DBInstance
-#   Properties: 
-#     Engine: "MySQL"
-#     DBInstanceClass: 
-#       Ref: "db.t2.medium"
-#     MultiAZ:
-#       Ref: "false"
-#     DBInstanceIdentifier:
-#       Ref: "csye6225-spring2019"
-#     MasterUsername: 
-#       Ref: "csye6225master"
-#     MasterUserPassword: 
-#       Ref: "csye6225password"
-#     PubliclyAccessible:
-#       Ref: "true"
-#     DBSubnetGroupName:
-#       Ref: "Subnet for RDS instances" #TODO
-#     DBName: 
-#       Ref: "csye6225"
+#RDS Instance
+    MyDB:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        Engine: MySQL
+        DBInstanceClass:
+          Ref: db.t2.medium
+        MultiAZ: false
+        DBInstanceIdentifier:
+          Ref: csye6225-spring2019
+        MasterUsername:
+          Ref: csye6225master
+        MasterUserPassword:
+          Ref: csye6225password
+        PubliclyAccessible: true
+        DBSubnetGroupName:
+          Ref: rdsSubnetGroup
+        DBName: csye6225
+        DBSecurityGroups: 
+          Ref: DBSecurityGroup

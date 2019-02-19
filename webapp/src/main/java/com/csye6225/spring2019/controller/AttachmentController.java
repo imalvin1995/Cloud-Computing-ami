@@ -114,12 +114,18 @@ public class AttachmentController {
             Attachment attachment = new Attachment();
             attachment.setNoteId(noteId);
             attachment = setAttachment(multipartFile,attachment);
+            if(attachment == null){
+                httpServletResponse.setStatus(SC_INTERNAL_SERVER_ERROR);
+                httpServletResponse.sendError(SC_INTERNAL_SERVER_ERROR,"Internal_server_error");
+            }
             Timestamp now = new Timestamp(System.currentTimeMillis());
             attachment.setUpdateTime(now);
             attachment.setCreateTime(now);
             // add File to DB;
             list.add(attachment);
             attachmentService.addAttachmentsToNote(list);
+
+
             // front end
             res.setData(attachment);
             res.setMessage("OK");
@@ -169,7 +175,8 @@ public class AttachmentController {
             // put Attachment
             attachment = setAttachment(file,attachment);
             if(attachment == null){
-                //TODO: send error
+                httpServletResponse.setStatus(SC_INTERNAL_SERVER_ERROR);
+                httpServletResponse.sendError(SC_INTERNAL_SERVER_ERROR,"Internal_server_error");
             }
             attachment.setUpdateTime(new Timestamp(System.currentTimeMillis()));
             attachmentService.updateAttachment(attachment);
@@ -206,7 +213,7 @@ public class AttachmentController {
         if(Strings.isNullOrEmpty(url))
             return null;
         attachment.setUrl(url);
-
+        inputStream.close();
         //file.delete();
         return attachment;
     }

@@ -25,12 +25,6 @@ public class FileUtil {
             log.warn("Invalid params");
             return null;
         }
-
-        List<String> list = Splitter.on(".").trimResults().splitToList(fileName);
-        if(list.size()!=2){
-            log.warn(String.format("Cannot get the name and suffix :%s",fileName));
-            return null;
-        }
         if(!createfolder(folderPath)){
             log.error("cannot create the folder with path :"+folderPath);
             return null;

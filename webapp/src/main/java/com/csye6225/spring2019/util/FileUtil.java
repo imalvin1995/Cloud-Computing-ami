@@ -29,21 +29,29 @@ public class FileUtil {
             log.error("cannot create the folder with path :"+folderPath);
             return null;
         }
+
         String filePath = String.format("%s/%s.%s",folderPath,fileName,suffix);
         File outfile = new File(filePath);
         outfile.createNewFile();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            BufferedWriter bf = new BufferedWriter(new FileWriter(outfile))){
-            String i;
-            while ((i=reader.readLine())!=null){
-                bf.write(i);
+            BufferedOutputStream bf = new BufferedOutputStream(new FileOutputStream(outfile));
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(1000)){
+            byte[] b = new byte[1000];
+            int n;
+            while ((n = input.read(b)) != -1) {
+                bos.write(b, 0, n);
             }
+            byte[] buffer = bos.toByteArray();
+            bf.write(buffer);
+            bf.flush();
         }catch (IOException e){
             log.error(e);
             return null;
         }
         return filePath;
     }
+
+
 
     public static boolean deleteFileFromLocal(String filePath){
         File file = new File(filePath);

@@ -68,7 +68,7 @@ public class S3Util {
             log.error(e);
             return null;
         }
-        return String.format("%s%s/%s",bucketName,awsSuffix,filePath);
+        return String.format("%s/%s/%s",awsSuffix,bucketName,filePath);
     }
 
     public static boolean deleteFile(String bucket,String keyName){

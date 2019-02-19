@@ -12,6 +12,7 @@ import com.csye6225.spring2019.service.RegisterService;
 import com.csye6225.spring2019.util.FileUtil;
 import com.csye6225.spring2019.util.S3Util;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,7 +63,7 @@ public class AttachmentController {
             Note note = noteService.getNoteByNoteId(noteId);
             if (note == null) {
                 res.setStatusCode(404);
-                res.setMessage("Not Fount");
+                res.setMessage("Not Found");
                 httpServletResponse.setStatus(SC_NOT_FOUND);
                 httpServletResponse.sendError(SC_NOT_FOUND, "Not Found");
             } else {
@@ -110,28 +112,10 @@ public class AttachmentController {
             List<Attachment> list = new LinkedList<>();
             Attachment attachment = new Attachment();
             attachment.setNoteId(noteId);
-            attachment.setFileName(multipartFile.getName());
-            attachment.setFileSize(multipartFile.getSize());
-            String[] name = multipartFile.getName().split("\\.");
-            String fileType = name[name.length - 1];
-            attachment.setFileType(fileType);
-            //transfer  multipart file to file
-            String fileName = multipartFile.getOriginalFilename();
-            String prefix = fileName.substring(fileName.lastIndexOf("."));
-            final File file = File.createTempFile(UUID.randomUUID().toString(),prefix);
-            multipartFile.transferTo(file);
-            // local file
-            if (environment.getProperty("csye6225.save.file.type").equals("local")) {
-                String url = FileUtil.saveFileToLocal(file, environment.getProperty("csye6225.file.folder"));
-                attachment.setUrl(url);
-            }
-            // aws file
-            else if (environment.getProperty("csye6225.save.file.type").equals("aws")) {
-                //Bucket b = S3Util.getBucket(environment.getProperty("csye6225.aws.bucket.name"));
-                String url = S3Util.uploadFile(environment.getProperty("csye6225.aws.bucket.name"), environment.getProperty("csye6225.file.folder"), file, environment.getProperty("csye6225.aws.url.suffix"));
-                attachment.setUrl(url);
-            }
-
+            attachment = setAttachment(multipartFile,attachment);
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            attachment.setUpdateTime(now);
+            attachment.setCreateTime(now);
             // add File to DB;
             list.add(attachment);
             attachmentService.addAttachmentsToNote(list);
@@ -145,7 +129,7 @@ public class AttachmentController {
     }
 
     @PutMapping("/note/{id}/attachments/{idAttachments}")
-    public Result<Attachment> updateAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("id") String noteId, @PathVariable("idAttachments") String idAttachment, File file) throws IOException {
+    public Result<Attachment> updateAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("id") String noteId, @PathVariable("idAttachments") String idAttachment, @RequestParam("file") MultipartFile file) throws IOException {
         // Basic Auth
         Result<Attachment> res = new Result<>();
         String auth = httpServletRequest.getHeader("Authorization");
@@ -171,43 +155,54 @@ public class AttachmentController {
                 return res;
             }
 
-            // check Attachment id exist
-            Attachment oldAttachment = attachmentService.getAttachmentById(idAttachment);
-            if(oldAttachment == null){
+            // check Attachment or note exist
+            Note note = noteService.getNoteByNoteId(noteId);
+
+            Attachment attachment = attachmentService.getAttachmentById(idAttachment);
+            if(attachment == null || note==null || note.getId()!=attachment.getNoteId()){
                 httpServletResponse.setStatus(SC_NOT_FOUND);
                 httpServletResponse.sendError(SC_NOT_FOUND,"Not Found");
                 return res;
             }
 
-            if(noteService.getNoteByNoteId(noteId).getAttachments()!= oldAttachment){
-                httpServletResponse.setStatus(SC_UNAUTHORIZED);
-                httpServletResponse.sendError(SC_UNAUTHORIZED,"Unauthorized");
-                return res;
-            }
-
             // put Attachment
-            Attachment attachment = new Attachment();
-            attachment.setNoteId(noteId);
-            attachment.setFileName(file.getName());
-            attachment.setFileSize(file.length());
-            String[] name = file.getName().split("\\.");
-            String fileType = name[name.length - 1];
-            attachment.setFileType(fileType);
-            // local file
-            if (environment.getProperty("csye6225.save.file.type").equals("local")) {
-                String url = FileUtil.saveFileToLocal(file, environment.getProperty("csye6225.file.folder"));
-                attachment.setUrl(url);
+            attachment = setAttachment(file,attachment);
+            if(attachment == null){
+                //TODO: send error
             }
-            // aws file
-            else if (environment.getProperty("csye6225.save.file.type").equals("aws")) {
-                //Bucket b = S3Util.getBucket(environment.getProperty("csye6225.aws.bucket.name"));
-                String url = S3Util.uploadFile(environment.getProperty("csye6225.aws.bucket.name"), environment.getProperty("csye6225.file.folder"), file, environment.getProperty("csye6225.aws.url.suffix"));
-                attachment.setUrl(url);
-            }
+            attachment.setUpdateTime(new Timestamp(System.currentTimeMillis()));
             attachmentService.updateAttachment(attachment);
             httpServletResponse.setStatus(SC_NO_CONTENT);
             return res;
         }
+    }
+
+    private Attachment setAttachment(MultipartFile multipartFile,Attachment attachment) throws IOException{
+        attachment.setFileName(multipartFile.getName());
+        attachment.setFileSize(multipartFile.getSize());
+        List<String> name = Splitter.on(".").trimResults().splitToList(multipartFile.getOriginalFilename());
+        String fileType = name.get(1);
+        attachment.setFileType(fileType);
+        //transfer  multipart file to file
+        String fileName = name.get(0);
+        final File file = File.createTempFile(fileName+"-"+System.currentTimeMillis(),"."+fileType);
+        multipartFile.transferTo(file);
+        String envType = environment.getProperty("csye6225.save.file.type");
+        String url;
+        if (envType.equals("local")) {
+            url = FileUtil.saveFileToLocal(file, environment.getProperty("csye6225.file.folder"));
+        }
+        // aws file
+        else  {
+            //Bucket b = S3Util.getBucket(environment.getProperty("csye6225.aws.bucket.name"));
+            url = S3Util.uploadFile(environment.getProperty("csye6225.aws.bucket.name"), environment.getProperty("csye6225.file.folder"), file, environment.getProperty("csye6225.aws.url.suffix"));
+        }
+        if(Strings.isNullOrEmpty(url))
+            return null;
+        attachment.setUrl(url);
+
+        file.delete();
+        return attachment;
     }
 
     @DeleteMapping("/note/{id}/attachments/{idAttachments}")

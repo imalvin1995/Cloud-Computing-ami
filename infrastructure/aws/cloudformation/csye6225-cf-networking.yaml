@@ -99,22 +99,26 @@ Outputs:
     Description: A reference to the created VPC
     Value: !Ref csye6225VPC
     Export:
-      Name: vpcId-1
+      Name: !Sub ${AWS::StackName}-vpcId
 
   PublicSubnetA:
     Description: Subnet A
     Value: !Ref PublicSubnetA
     Export:
-      Name: PublicSubA
+      Name: !Sub ${AWS::StackName}-SubA
 
   PublicSubnetB:
     Description: Subnet B
     Value: !Ref PublicSubnetB
     Export:
-      Name: PublicSubB
+      Name: !Sub ${AWS::StackName}-SubB
 
   PublicSubnetC:
     Description: Subnet C
     Value: !Ref PublicSubnetC
     Export:
-      Name: PublicSubC
+      Name: !Sub ${AWS::StackName}-SubC
+
+  StackName:
+    Description: Stack Name
+    Value: !Sub ${AWS::StackName}-StackName

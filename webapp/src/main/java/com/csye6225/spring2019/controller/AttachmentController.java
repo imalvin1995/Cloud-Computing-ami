@@ -201,7 +201,7 @@ public class AttachmentController {
        // String fileType = name.get(1);
         //attachment.setFileType(fileType);
         String multipartFileName = multipartFile.getOriginalFilename();
-        String fileName = multipartFileName.substring(0,multipartFileName.lastIndexOf("."));
+        String fileName = multipartFileName.substring(0,multipartFileName.lastIndexOf("."))+"-"+System.currentTimeMillis();
         String fileType = multipartFileName.substring(multipartFileName.lastIndexOf(".")+1);
         //transfer  multipart file to file
         //String fileName = name.get(0)+"-"+System.currentTimeMillis();

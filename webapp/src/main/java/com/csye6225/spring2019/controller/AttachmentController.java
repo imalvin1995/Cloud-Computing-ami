@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.csye6225.spring2019.entity.Account;
 import com.csye6225.spring2019.entity.Attachment;
 import com.csye6225.spring2019.entity.Note;
+import com.csye6225.spring2019.facade.NoteFacadeService;
 import com.csye6225.spring2019.filter.Verifier;
 import com.csye6225.spring2019.service.AttachmentService;
 import com.csye6225.spring2019.service.NoteService;
@@ -49,6 +50,9 @@ public class AttachmentController {
 
     @Autowired
     Environment environment;
+
+    @Autowired
+    NoteFacadeService noteFacadeService;
 
     @GetMapping("/note/{noteId}/attachments")
     public Result<List<Attachment>> getAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable(value = "noteId") String noteId) throws IOException {
@@ -117,6 +121,7 @@ public class AttachmentController {
             if(attachment == null){
                 httpServletResponse.setStatus(SC_INTERNAL_SERVER_ERROR);
                 httpServletResponse.sendError(SC_INTERNAL_SERVER_ERROR,"Internal_server_error");
+                return res;
             }
             Timestamp now = new Timestamp(System.currentTimeMillis());
             attachment.setUpdateTime(now);
@@ -136,7 +141,7 @@ public class AttachmentController {
     }
 
     @PutMapping("/note/{noteId}/attachments/{idAttachments}")
-    public Result<Attachment> updateAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("noteId") String noteId, @PathVariable("idAttachments") String idAttachment, @RequestParam("file") MultipartFile file) throws IOException {
+    public Result<Attachment> updateAttachments(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, @PathVariable("noteId") String noteId, @PathVariable("idAttachments") String idAttachment, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         // Basic Auth
         Result<Attachment> res = new Result<>();
         String auth = httpServletRequest.getHeader("Authorization");
@@ -166,20 +171,25 @@ public class AttachmentController {
             Note note = noteService.getNoteByNoteId(noteId);
 
             Attachment attachment = attachmentService.getAttachmentById(idAttachment);
-            if(attachment == null || note==null || note.getId()!=attachment.getNoteId()){
+            if(attachment == null || note==null || !note.getId().equals(attachment.getNoteId())){
                 httpServletResponse.setStatus(SC_NOT_FOUND);
                 httpServletResponse.sendError(SC_NOT_FOUND,"Not Found");
                 return res;
             }
 
             // put Attachment
-            attachment = setAttachment(file,attachment);
-            if(attachment == null){
+            //attachment = setAttachment(file,attachment);
+           /* if(attachment == null){
                 httpServletResponse.setStatus(SC_INTERNAL_SERVER_ERROR);
                 httpServletResponse.sendError(SC_INTERNAL_SERVER_ERROR,"Internal_server_error");
-            }
+            }*/
+            String multipartFileName = multipartFile.getOriginalFilename();
+            String fileName = multipartFileName.substring(0,multipartFileName.lastIndexOf("."));
+            String fileType = multipartFileName.substring(multipartFileName.lastIndexOf(".")+1);
+            long fileSize = multipartFile.getSize();
+            InputStream inputStream = multipartFile.getInputStream();
             attachment.setUpdateTime(new Timestamp(System.currentTimeMillis()));
-            attachmentService.updateAttachment(attachment);
+            noteFacadeService.updateAttachment(inputStream,fileName,fileType,(double)fileSize,idAttachment);
             httpServletResponse.setStatus(SC_NO_CONTENT);
             return res;
         }
@@ -192,7 +202,7 @@ public class AttachmentController {
         //attachment.setFileType(fileType);
         String multipartFileName = multipartFile.getOriginalFilename();
         String fileName = multipartFileName.substring(0,multipartFileName.lastIndexOf("."));
-        String fileType = multipartFileName.substring(multipartFileName.lastIndexOf("."));
+        String fileType = multipartFileName.substring(multipartFileName.lastIndexOf(".")+1);
         //transfer  multipart file to file
         //String fileName = name.get(0)+"-"+System.currentTimeMillis();
         attachment.setFileName(fileName);
@@ -242,17 +252,15 @@ public class AttachmentController {
                 return res;
             }
             Attachment attachment = attachmentService.getAttachmentById(idAttachment);
-            if (Strings.isNullOrEmpty(idAttachment) || noteService.getNoteByNoteId(noteId).getAttachments() != attachment) {
+            if (attachment == null || !attachment.getNoteId().equals(noteService.getNoteByNoteId(noteId).getId()) ) {
                 httpServletResponse.setStatus(SC_UNAUTHORIZED);
                 httpServletResponse.sendError(SC_UNAUTHORIZED, "Unauthorized");
                 return res;
             }
 
-            attachmentService.deleteAttachmentById(idAttachment);
+            noteFacadeService.deleteAttachment(idAttachment);
             httpServletResponse.setStatus(SC_NO_CONTENT);
         }
         return res;
     }
-
-
 }

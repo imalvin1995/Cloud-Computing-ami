@@ -53,7 +53,7 @@ Resources:
 
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
-    # Notice how you can't attach an IGW to a VPC unless both are created:
+    # Notice: you can't attach an IGW to a VPC unless both are created:
     Properties:
       VpcId: !Ref csye6225VPC
       InternetGatewayId: !Ref csye6225InternetGateway
@@ -94,19 +94,27 @@ Resources:
       SubnetId: !Ref PublicSubnetC
       RouteTableId: !Ref csye6225PublicRouteTable
 
-Output:
-  VPC: 
-      Description: A reference to the created VPC
-      Value: !Ref csye6225VPC
+Outputs:
+  vpcId: 
+    Description: A reference to the created VPC
+    Value: !Ref csye6225VPC
+    Export:
+      Name: vpcId-1
 
   PublicSubnetA:
-      Description: Subnet A
-      Value: !Ref PublicSubnetA
+    Description: Subnet A
+    Value: !Ref PublicSubnetA
+    Export:
+      Name: PublicSubA
 
   PublicSubnetB:
-      Description: Subnet B
-      Value: !Ref PublicSubnetB
+    Description: Subnet B
+    Value: !Ref PublicSubnetB
+    Export:
+      Name: PublicSubB
 
   PublicSubnetC:
-      Description: Subnet C
-      Value: !Ref PublicSubnetC
+    Description: Subnet C
+    Value: !Ref PublicSubnetC
+    Export:
+      Name: PublicSubC

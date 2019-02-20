@@ -54,18 +54,17 @@ Resources:
   #   Type: AWS::EC2::SecurityGroup
   #   Properties:
   #     GroupDescription: Security Group for Web Servers
-  #     VpcId:
-  #     - Fn::GetAZs: !Ref csye6225VPC
+  #     VpcId: !ImportValue vpcId-1
   #     SecurityGroupIngress:
   #     - IpProtocol: tcp
-  #       FromPort: 3306
-  #       ToPort: 3306
+  #       FromPort: "3306"
+  #       ToPort: "3306"
   #       CidrIp: 0.0.0.0/0
   #     Tags:
   #     - Key: Name
   #       Value: DBSecurityGroup
   
-  # csye6225: 
+  # dynamoDB: 
   #   Type: AWS::DynamoDB::Table
   #   Properties: 
   #     AttributeDefinitions: 
@@ -81,23 +80,20 @@ Resources:
   #       WriteCapacityUnits: "5"
   #     TableName: "csye6225"
 # RDS Subnet Group
-  # rdsSubnetGroup: 
-  #   Type: "AWS::RDS::DBSubnetGroup"
-  #   Properties: 
-  #     DBSubnetGroupDescription: "RDS Subnets"
-  #     SubnetIds:
-  #       - Fn::ImportValue:
-  #           !Ref PublicSubnetA
-  #       - Fn::ImportValue:
-  #           !Ref PublicSubnetA
-  #       - Fn::ImportValue:
-  #           !Ref PublicSubnetA
+  rdsSubnetGroup: 
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties: 
+      DBSubnetGroupDescription: "Subnet for RDS instances"
+      SubnetIds:
+        - !ImportValue PublicSubA
+        - !ImportValue PublicSubB
+        - !ImportValue PublicSubC
 
 #RDS Instance
-  MyDB:
+  rdsInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      AllocatedStorage: 20
+      AllocatedStorage: 5
       Engine: MySQL
       DBInstanceClass: db.t2.medium
       MultiAZ: false
@@ -105,8 +101,7 @@ Resources:
       MasterUsername: csye6225master
       MasterUserPassword: csye6225password
       PubliclyAccessible: true
-      DBSubnetGroupName:
-        Ref: rdsSubnetGroup
+      DBSubnetGroupName: !Ref rdsSubnetGroup
       DBName: csye6225
       # DBSecurityGroups: 
       #   Ref: DBSecurityGroup

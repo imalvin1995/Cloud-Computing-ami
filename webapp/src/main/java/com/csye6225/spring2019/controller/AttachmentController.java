@@ -184,7 +184,7 @@ public class AttachmentController {
                 httpServletResponse.sendError(SC_INTERNAL_SERVER_ERROR,"Internal_server_error");
             }*/
             String multipartFileName = multipartFile.getOriginalFilename();
-            String fileName = multipartFileName.substring(0,multipartFileName.lastIndexOf("."));
+            String fileName = multipartFileName.substring(0,multipartFileName.lastIndexOf("."))+"-"+System.currentTimeMillis();
             String fileType = multipartFileName.substring(multipartFileName.lastIndexOf(".")+1);
             long fileSize = multipartFile.getSize();
             InputStream inputStream = multipartFile.getInputStream();
@@ -239,11 +239,13 @@ public class AttachmentController {
             httpServletResponse.sendError(SC_UNAUTHORIZED, "Unauthorized");
             return res;
         } else {
-            if (noteService.getNoteByNoteId(noteId) == null) {
+            Note note = noteService.getNoteByNoteId(noteId);
+            if (note == null) {
                 httpServletResponse.setStatus(SC_BAD_REQUEST);
                 httpServletResponse.sendError(SC_BAD_REQUEST, "Bad Request");
                 return res;
             }
+
             String userEmail = account.getEmailAddress();
             Account user = registerService.findByEmail(userEmail);
             if (user.getId() != noteService.getNoteByNoteId(noteId).getUserId()) {
@@ -252,7 +254,7 @@ public class AttachmentController {
                 return res;
             }
             Attachment attachment = attachmentService.getAttachmentById(idAttachment);
-            if (attachment == null || !attachment.getNoteId().equals(noteService.getNoteByNoteId(noteId).getId()) ) {
+            if (attachment == null || !attachment.getNoteId().equals(note.getId()) ) {
                 httpServletResponse.setStatus(SC_UNAUTHORIZED);
                 httpServletResponse.sendError(SC_UNAUTHORIZED, "Unauthorized");
                 return res;

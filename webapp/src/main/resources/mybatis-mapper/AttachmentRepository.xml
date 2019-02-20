@@ -9,7 +9,7 @@
         <result column="URL" property="url"/>
         <result column="FILE_NAME" property="fileName"/>
         <result column="FILE_SIZE" property="fileSize"/>
-        <result column="FILE_TYPE" property="type"/>
+        <result column="FILE_TYPE" property="fileType"/>
         <result column="CREATE_TIME" property="createTime"/>
         <result column="UPDATE_TIME" property="updateTime"/>
     </resultMap>

@@ -11,9 +11,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
@@ -78,11 +76,13 @@ public class NoteFacadeServiceImpl implements NoteFacadeService {
     private void deleteFileByUrl(String url){
 
         String bucket = env.getProperty("csye6225.aws.bucket.name");
-        if(isAWSURL(url)){
+        if(isAWSURL(url) &&!isRunLocal()){
             String path = url.substring(url.indexOf(bucket)+bucket.length());
             S3Util.deleteFile(bucket,path);
-        }else {
+        }else if(!isAWSURL(url) && isRunLocal()){
             FileUtil.deleteFileFromLocal(url);
+        }else {
+            log.warn("Cannot delete file with url because of the wrong env : "+url);
         }
     }
 

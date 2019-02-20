@@ -7,6 +7,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
@@ -76,7 +77,7 @@ public class S3Util {
             return false;
         }
         try{
-            s3.deleteObject(bucket,keyName);
+            s3.deleteObject(new DeleteObjectRequest(bucket, keyName));
         }catch (Exception e){
             log.error(e);
             return false;

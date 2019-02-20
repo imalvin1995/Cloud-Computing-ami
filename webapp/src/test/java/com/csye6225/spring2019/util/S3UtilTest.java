@@ -27,9 +27,10 @@ import java.io.InputStream;
 public class S3UtilTest {
 @Autowired
 private Environment env;
-
+String bucket = "";
 @Before
-public void before() throws Exception { 
+public void before() throws Exception {
+    bucket = env.getProperty("csye6225.aws.bucket.name");
 } 
 
 @After
@@ -63,5 +64,10 @@ public void testUploadFile() throws Exception {
     Assert.assertTrue(Strings.isNotEmpty(url));
 } 
 
+
+@Test
+    public void testDeleteFile(){
+    S3Util.deleteFile(bucket,"file/test-1550690615555.png");
+}
 
 } 

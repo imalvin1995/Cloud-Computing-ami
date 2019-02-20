@@ -12,7 +12,7 @@ import java.util.List;
 public interface AttachmentRepository {
     int insertAttachments(@Param("list") List<Attachment> list);
 
-    int updateAttachment(@Param("item")Attachment attachment);
+    int updateAttachment(Attachment attachment);
 
     int deleteAttachmentById(@Param("id")String id);
 

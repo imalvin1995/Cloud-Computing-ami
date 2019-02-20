@@ -97,16 +97,16 @@ Resources:
 Output:
   VPC: 
       Description: A reference to the created VPC
-      Value: !Ref VPC
+      Value: !Ref csye6225VPC
 
   PublicSubnetA:
       Description: Subnet A
-      Value: !Sub ${AWS::StackName}-Public-A
+      Value: !Ref PublicSubnetA
 
   PublicSubnetB:
       Description: Subnet B
-      Value: !Sub ${AWS::StackName}-Public-B
+      Value: !Ref PublicSubnetB
 
   PublicSubnetC:
       Description: Subnet C
-      Value: !Sub ${AWS::StackName}-Public-C   
+      Value: !Ref PublicSubnetC

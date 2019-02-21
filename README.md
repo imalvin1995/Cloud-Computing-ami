@@ -9,7 +9,9 @@
 |YuChiao Huang |001442969 |huang.yuc@husky.neu.edu |
 |Yimu Jin| 001449259 | jin.yim@husky.neu.edu |
 
- CREATE TABLE `attachment` (
+
+## database
+CREATE TABLE `attachment` (
   `id` varchar(36) NOT NULL,
   `note_id` varchar(36) NOT NULL,
   `url` varchar(255) NOT NULL,
@@ -20,6 +22,23 @@
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE user(
+   id INT PRIMARY KEY AUTO_INCREMENT,
+   email_address VARCHAR(255),
+   pwd_string VARCHAR(255)
+)
+
+CREATE TABLE csye6225.`note` ( 
+   `id` varchar(36) NOT NULL ,  
+   `user_id` int(11) DEFAULT '0',   
+   `title` varchar(255) DEFAULT '',   
+   `content` varchar(255) DEFAULT '',   
+   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,  
+   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,   
+   PRIMARY KEY (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+mysql -h [csye6225-spring2019.cznyz0wjytd7.us-east-1.rds.amazonaws.com] -P 3306 -u csye6225master -p
 
 ## Validate Template
 

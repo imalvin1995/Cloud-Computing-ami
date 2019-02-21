@@ -1,5 +1,6 @@
 package com.csye6225.spring2019.util;
 
+import com.amazonaws.services.s3.internal.InputSubstream;
 import org.apache.logging.log4j.util.Strings;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -10,6 +11,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -43,7 +45,7 @@ public void after() throws Exception {
 public void testInputSteamToFile() throws Exception { 
 //TODO: Test goes here...
     File file = new File("pom.xml");
-    String url = FileUtil.saveFileToLocal(file,env.getProperty("csye6225.file.folder"));
+    String url = FileUtil.saveFileToLocal(new FileInputStream(file),env.getProperty("csye6225.file.folder"),"pom","xml");
     System.out.println(url);
     Assert.assertTrue(Strings.isNotEmpty(url));
 

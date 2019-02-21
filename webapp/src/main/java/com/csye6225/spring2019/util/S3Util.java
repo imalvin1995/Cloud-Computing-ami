@@ -7,6 +7,8 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
@@ -15,6 +17,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.util.Strings;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 @Log4j2
@@ -42,23 +45,14 @@ public class S3Util {
     }
 
     // upload files
-    public static String uploadFile(String bucketName,String path,File file,String awsSuffix){
-        if(Strings.isEmpty(bucketName)||file==null||Strings.isEmpty(path)||Strings.isEmpty(awsSuffix)){
+    public static String uploadFile(String bucketName, String path, InputStream input, String awsSuffix,String fileName,String fileType){
+        if(Strings.isEmpty(bucketName)||input==null||Strings.isEmpty(path)||Strings.isEmpty(awsSuffix)
+                ||Strings.isEmpty(fileName)||Strings.isEmpty(fileType)){
             log.error("Invalid params");
             return null;
         }
-        String fileName = file.getName();
-        if(Strings.isEmpty(fileName)){
-            log.warn("No file name found");
-            return null;
-        }
-        List<String> names = Splitter.on(".").trimResults().splitToList(fileName);
-        if(names.size()!=2){
-            log.warn(String.format("Invalid file name %s",fileName));
-            return null;
-        }
-        String filePath = String.format("%s/%s-%d.%s",path,names.get(0)
-                ,System.currentTimeMillis(),names.get(1));
+        String filePath = String.format("%s/%s.%s",path,fileName,fileType);
+
         TransferManager tm = TransferManagerBuilder.standard()
                 .withS3Client(s3)
                 .build();
@@ -66,17 +60,16 @@ public class S3Util {
         try {
             // TransferManager processes all transfers asynchronously,
             // so this call returns immediately.
-            Upload upload = tm.upload(bucketName, filePath, file);
+            Upload upload = tm.upload(bucketName, filePath, input,new ObjectMetadata());
             log.info("Object upload started");
             // Optionally, wait for the upload to finish before continuing.
             upload.waitForCompletion();
-
             log.info("Object upload complete");
         }catch (InterruptedException e){
             log.error(e);
             return null;
         }
-        return String.format("%s%s/%s",bucketName,awsSuffix,filePath);
+        return String.format("%s/%s/%s",awsSuffix,bucketName,filePath);
     }
 
     public static boolean deleteFile(String bucket,String keyName){
@@ -84,7 +77,7 @@ public class S3Util {
             return false;
         }
         try{
-            s3.deleteObject(bucket,keyName);
+            s3.deleteObject(new DeleteObjectRequest(bucket, keyName));
         }catch (Exception e){
             log.error(e);
             return false;

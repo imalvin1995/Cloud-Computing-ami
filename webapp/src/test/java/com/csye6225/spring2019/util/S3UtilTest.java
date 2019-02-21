@@ -11,6 +11,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 /** 
 * S3Util Tester. 
@@ -25,9 +27,10 @@ import java.io.File;
 public class S3UtilTest {
 @Autowired
 private Environment env;
-
+String bucket = "";
 @Before
-public void before() throws Exception { 
+public void before() throws Exception {
+    bucket = env.getProperty("csye6225.aws.bucket.name");
 } 
 
 @After
@@ -55,10 +58,16 @@ public void testGetBucket() throws Exception {
 public void testUploadFile() throws Exception { 
 //TODO: Test goes here...
     File file = new File("pom.xml");
-    String url = S3Util.uploadFile(env.getProperty("csye6225.aws.bucket.name"),env.getProperty("csye6225.file.folder"),file,env.getProperty("csye6225.aws.url.suffix"));
+    InputStream inputStream = new FileInputStream(file);
+    String url = S3Util.uploadFile(env.getProperty("csye6225.aws.bucket.name"),env.getProperty("csye6225.file.folder"),inputStream,env.getProperty("csye6225.aws.url.suffix"),"pom","xml");
     System.out.println(url);
     Assert.assertTrue(Strings.isNotEmpty(url));
 } 
 
+
+@Test
+    public void testDeleteFile(){
+    S3Util.deleteFile(bucket,"file/test-1550690615555.png");
+}
 
 } 

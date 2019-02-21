@@ -88,6 +88,9 @@ public class NoteController {
                 return res;
             }
 //            httpServletResponse.setStatus(SC_CREATED);*/
+            if(note.getAttachments() == null){
+                note.setAttachments(new ArrayList<>());
+            }
             httpServletResponse.setStatus(SC_CREATED);
             //httpServletResponse.sendError(SC_CREATED,"Created");
             res.setData(note);

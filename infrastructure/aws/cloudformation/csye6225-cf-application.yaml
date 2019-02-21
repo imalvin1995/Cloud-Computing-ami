@@ -61,8 +61,8 @@ Resources:
     Properties:
       GroupDescription: Security Group for Web Servers
       VpcId: 
-      - Fn::ImportValue:
-          !Sub "${AWS::StackName}-vpcId"
+      - Fn::GetAZs:
+          !Sub "${TemplateStack}-vpcId"
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: "3306"

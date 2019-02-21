@@ -77,7 +77,7 @@ public class NoteFacadeServiceImpl implements NoteFacadeService {
 
         String bucket = env.getProperty("csye6225.aws.bucket.name");
         if(isAWSURL(url) &&!isRunLocal()){
-            String path = url.substring(url.indexOf(bucket)+bucket.length());
+            String path = url.substring(url.indexOf(bucket)+bucket.length()+1);
             S3Util.deleteFile(bucket,path);
         }else if(!isAWSURL(url) && isRunLocal()){
             FileUtil.deleteFileFromLocal(url);

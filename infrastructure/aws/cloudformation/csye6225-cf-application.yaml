@@ -1,42 +1,55 @@
 AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  refStackName: 
+    Type: String
+  amiId:
+    Type: String
+
 Resources: 
+# Setup Security Group for Ec2 Instance
+  WebappSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for Web Servers
+      VpcId: 
+        Fn::ImportValue:
+          !Sub "${refStackName}-vpcId"
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+      Tags:
+      - Key: Name
+        Value: WebappSecurityGroup
 
-  # WebappSecurityGroup:
-  #   Type: AWS::EC2::SecurityGroup
-  #   Properties:
-  #     GroupDescription: Security Group for Web Servers
-  #     VpcId: !ImportValue vpcId-1
-  #     SecurityGroupIngress:
-  #     - IpProtocol: tcp
-  #       FromPort: 22
-  #       ToPort: 22
-  #       CidrIp: 0.0.0.0/0
-  #     - IpProtocol: tcp
-  #       FromPort: 80
-  #       ToPort: 80
-  #       CidrIp: 0.0.0.0/0
-  #     - IpProtocol: tcp
-  #       FromPort: 443
-  #       ToPort: 443
-  #       CidrIp: 0.0.0.0/0
-  #     Tags:
-  #     - Key: Name
-  #       Value: WebappSecurityGroup
-
-  # EC2Instance:
-  #   Type: AWS::EC2::Instance
-  #   Properties:
-  #     InstanceType: t2.micro
-  #     SecurityGroups:
-  #     - !GetAtt WebappSecurityGroup.GroupId
-  #     KeyName: KeyName
-  #     BlockDeviceMappings: 
-  #       - DeviceName: /dev/sdm
-  #         Ebs: 
-  #           VolumeType: gp2
-  #           DeleteOnTermination: true
-  #           VolumeSize: 20
-  #     ImageId: ami-0e371383138e2651a
+# Create Ec2 Instance
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !GetAtt WebappSecurityGroup.GroupId
+      DisableApiTermination: false
+      SubnetId:
+        Fn::ImportValue:
+          !Sub "${refStackName}-SubA"
+      BlockDeviceMappings: 
+        - DeviceName: /dev/sdm
+          Ebs: 
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: 20
+      ImageId: !Sub ${amiId}
 
 # Create DynamoDB
   dynamoDB: 
@@ -61,8 +74,8 @@ Resources:
     Properties:
       GroupDescription: Security Group for Web Servers
       VpcId: 
-      - Fn::GetAZs:
-          !Sub "${TemplateStack}-vpcId"
+        Fn::ImportValue:
+          !Sub "${refStackName}-vpcId"
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: "3306"
@@ -73,20 +86,20 @@ Resources:
         Value: !Sub ${AWS::StackName}-csye6225-rdsDBSecurityGroup
   
 # Setup RDS Subnet Group
-  # rdsSubnetGroup: 
-  #   Type: "AWS::RDS::DBSubnetGroup"
-  #   Properties: 
-  #     DBSubnetGroupDescription: "Subnet for RDS instances"
-  #     SubnetIds:
-  #       - Fn::ImportValue:
-  #           !Sub "${AWS::StackName}-SubA"
-  #       - Fn::ImportValue:
-  #           !Sub "${AWS::StackName}-SubB"
-  #       - Fn::ImportValue:
-  #           !Sub "${AWS::StackName}-SubC"
-  #     Tags:
-  #       - Key: Name
-  #         Value: !Sub ${AWS::StackName}-csye6225-rdsSubnetGroup
+  rdsSubnetGroup: 
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties: 
+      DBSubnetGroupDescription: "Subnet for RDS instances"
+      SubnetIds:
+      - Fn::ImportValue:
+          !Sub "${refStackName}-SubA"
+      - Fn::ImportValue:
+          !Sub "${refStackName}-SubB"
+      - Fn::ImportValue:
+          !Sub "${refStackName}-SubC"
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-csye6225-rdsSubnetGroup
 
 #Create RDS Instance
   rdsInstance:
@@ -101,6 +114,6 @@ Resources:
       MasterUsername: csye6225master
       MasterUserPassword: csye6225password
       PubliclyAccessible: true
-      # DBSubnetGroupName: !Ref rdsSubnetGroup
+      DBSubnetGroupName: !Ref rdsSubnetGroup
       VPCSecurityGroups: 
       - !GetAtt rdsDBSecurityGroup.GroupId

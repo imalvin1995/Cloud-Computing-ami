@@ -118,6 +118,3 @@ Outputs:
     Value: !Ref PublicSubnetC
     Export:
       Name: !Sub ${AWS::StackName}-SubC
-      
-  StackName:
-    Value: !Ref AWS::StackName

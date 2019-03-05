@@ -1,4 +1,4 @@
-# set -e
+set -e
 aws deploy create-application --application-name csye6225-webapp --compute-platform Server
 echo "Please input the key name :"
 read key

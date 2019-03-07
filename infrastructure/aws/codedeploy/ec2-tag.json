@@ -1,0 +1,11 @@
+{
+  "ec2TagSetList": [
+    [
+      {
+        "Key": "1",
+        "Value": "2",
+        "Type": "KEY_AND_VALUE"
+      }
+    ]
+  ]
+}

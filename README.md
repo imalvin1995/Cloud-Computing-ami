@@ -62,6 +62,10 @@ packer build \
 2. Open csye6225-aws-cf-terminate-application-stack.sh to terminate the application stack, then open the csye6225-aws-cf-terminate-stack.sh to terminate the networking stack.
 
 
+## Connect to server
+ssh -i csye6225.pem centos@ec2-3-95-65-120.compute-1.amazonaws.com
+
+
 ## CircleCI API
 curl -u d7266146e44350459b9630b8d93d05bfd33614d2 \
      -d build_parameters[CIRCLE_JOB]=build \

@@ -3,7 +3,6 @@
         "aws_region": "",
         "source_ami": "ami-9887c6e7",
         "ssh_username":"centos",
-        "subnet_id":""
     },
     "builders": [
         {

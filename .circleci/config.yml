@@ -26,4 +26,7 @@ jobs:
       - run:
           name: Build AMI
           command: |
-            ./packer build centos-ami-template.json
+            ./packer build \
+            -var "aws_region=${AWS_DEFAULT_REGION}" \
+            centos-ami-template.json
+            

@@ -1,6 +1,6 @@
 {
     "variables": {
-        "aws_region": "us-east-1",
+        "aws_region": "",
         "source_ami": "ami-9887c6e7",
         "ssh_username":"centos"
     },

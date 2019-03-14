@@ -1,6 +1,6 @@
 {
     "variables": {
-        "aws_region": "us-east-1",
+        "aws_region": "",
         "source_ami": "ami-9887c6e7",
         "ssh_username":"centos"
     },
@@ -39,6 +39,9 @@
                 "cd /home/centos",
                 "wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install",
                 "chmod +x ./install",
-                "sudo ./install auto"
-           ]
+                "sudo ./install auto",
+                "sudo yum install mysql -y"
+            ]
+        }
+    ]
 }

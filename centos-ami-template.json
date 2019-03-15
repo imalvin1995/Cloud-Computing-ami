@@ -33,14 +33,12 @@
             ],
             "inline": [
                 "sudo yum update -y",
-                "sudo yum install tomcat tomcat-webapps tomcat-admin-webapps tomcat-docs-webapp -y",
                 "sudo yum install ruby -y",
                 "sudo yum install wget -y",
                 "cd /home/centos",
                 "wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install",
                 "chmod +x ./install",
                 "sudo ./install auto",
-                "sudo yum install mysql -y"
             ]
         }
     ]

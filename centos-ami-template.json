@@ -1,6 +1,6 @@
 {
     "variables": {
-        "aws_region": "us-east-1",
+        "aws_region": "",
         "source_ami": "ami-9887c6e7",
         "ssh_username":"centos"
     },
@@ -33,8 +33,15 @@
             ],
             "inline": [
                 "sudo yum update -y",
-                "sudo yum install tomcat tomcat-webapps tomcat-admin-webapps tomcat-docs-webapp -y"
-           ]
+                "sudo yum install tomcat tomcat-webapps tomcat-admin-webapps tomcat-docs-webapp -y",
+                "sudo yum install ruby -y",
+                "sudo yum install wget -y",
+                "cd /home/centos",
+                "wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install",
+                "chmod +x ./install",
+                "sudo ./install auto",
+                "sudo yum install mysql -y"
+            ]
         }
     ]
 }

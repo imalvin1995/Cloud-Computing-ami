@@ -69,4 +69,4 @@ ssh -i csye6225.pem centos@ec2-3-95-65-120.compute-1.amazonaws.com
 ## CircleCI API
 curl -u d7266146e44350459b9630b8d93d05bfd33614d2 \
      -d build_parameters[CIRCLE_JOB]=build \
-     https://circleci.com/api/v1.1/project/github/zehua8/csye6225-spring2019-ami/tree/Assignment5
+     https://circleci.com/api/v1.1/project/github/zehua8/csye6225-spring2019-ami/tree/Assignment5 

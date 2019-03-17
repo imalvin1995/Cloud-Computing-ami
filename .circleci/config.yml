@@ -3,7 +3,7 @@ jobs:
   build:
     branches:
       only:
-       - Assignment5
+       - master
     docker:
       - image: circleci/python:2.7-jessie
     steps:
@@ -28,4 +28,5 @@ jobs:
           command: |
             ./packer build \
             -var "aws_region=${AWS_DEFAULT_REGION}" \
+            -var "subnet_id=${SUBNET_NET_ID}" \
             centos-ami-template.json

@@ -1,8 +1,9 @@
 {
     "variables": {
-        "aws_region": "us-east-1",
+        "aws_region": "",
         "source_ami": "ami-9887c6e7",
-        "ssh_username":"centos"
+        "ssh_username":"centos",
+        "subnet_id": ""
     },
     "builders": [
         {
@@ -33,8 +34,46 @@
             ],
             "inline": [
                 "sudo yum update -y",
-                "sudo yum install tomcat tomcat-webapps tomcat-admin-webapps tomcat-docs-webapp -y"
-           ]
+                "sudo yum install ruby -y",
+                "sudo yum install wget -y",
+                "sudo yum install java-1.8.0-openjdk-devel -y",
+                "sudo useradd -m -U -d /opt/tomcat -s /bin/false tomcat",
+                "cd /tmp",
+                "wget https://www-eu.apache.org/dist/tomcat/tomcat-9/v9.0.16/bin/apache-tomcat-9.0.16.tar.gz",
+                "tar -xf apache-tomcat-9.0.16.tar.gz",
+                "sudo mv apache-tomcat-9.0.16 /opt/tomcat/",
+                "sudo ln -s /opt/tomcat/apache-tomcat-9.0.16 /opt/tomcat/latest",
+                "sudo chown -R tomcat: /opt/tomcat",
+                "sudo sh -c 'chmod +x /opt/tomcat/latest/bin/*.sh'",
+                "cd /etc/systemd/system",
+                "sudo touch tomcat.service",
+                "echo '[Unit]' | sudo tee tomcat.service",
+                "echo 'Description=Tomcat 9 servlet container' | sudo tee --append tomcat.service",
+                "echo 'After=network.target' | sudo tee --append tomcat.service",
+                "echo '[Service]' | sudo tee --append tomcat.service",
+                "echo 'Type=forking' | sudo tee --append tomcat.service",
+                "echo 'User=tomcat' | sudo tee --append tomcat.service",
+                "echo 'Group=tomcat' | sudo tee --append tomcat.service",
+                "echo 'Environment=\"JAVA_HOME=/usr/lib/jvm/jre\"' | sudo tee --append tomcat.service",
+                "echo 'Environment=\"JAVA_OPTS=-Djava.security.egd=file:///dev/urandom\"' | sudo tee --append tomcat.service",
+                "echo 'Environment=\"CATALINA_BASE=/opt/tomcat/latest\"' | sudo tee --append tomcat.service",
+                "echo 'Environment=\"CATALINA_HOME=/opt/tomcat/latest\"' | sudo tee --append tomcat.service",
+                "echo 'Environment=\"CATALINA_PID=/opt/tomcat/latest/temp/tomcat.pid\"' | sudo tee --append tomcat.service",
+                "echo 'Environment=\"CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC\"' | sudo tee --append tomcat.service",
+                "echo 'ExecStart=/opt/tomcat/latest/bin/startup.sh' | sudo tee --append tomcat.service",
+                "echo 'ExecStop=/opt/tomcat/latest/bin/shutdown.sh' | sudo tee --append tomcat.service",
+                "echo '[Install]' | sudo tee --append tomcat.service",
+                "echo 'WantedBy=multi-user.target' | sudo tee --append tomcat.service",
+                "sudo systemctl daemon-reload",
+                "sudo systemctl enable tomcat",
+                "sudo systemctl start tomcat",
+                "sudo systemctl status tomcat",
+                "cd",
+                "cd /home/centos",
+                "wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install",
+                "chmod +x ./install",
+                "sudo ./install auto"
+            ]
         }
     ]
 }

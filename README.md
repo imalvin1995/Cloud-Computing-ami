@@ -59,4 +59,6 @@ packer build \
 
 ## Build Stacks
 1. Open csye6225-aws-cf-create-stack.sh to create a networking stack, then open csye6225-aws-cf-create-application-stack.sh to create a application stack, input the application stack name and networking stack name.
+
 2. Open csye6225-aws-cf-terminate-application-stack.sh to terminate the application stack, then open the csye6225-aws-cf-terminate-stack.sh to terminate the networking stack. 
+
